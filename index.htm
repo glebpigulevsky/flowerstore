@@ -188,14 +188,23 @@ $(function(){
         // добавляем надбавку к цене
         function addVal() {
             setTimeout(function(){
+                var choosed_day = $datepicker_block_init.datepicker('getDate').getDate();
+                var choosed_month = $datepicker_block_init.datepicker('getDate').getMonth();
+                var is_valentines_day = choosed_day == 14 && choosed_month == 1;
+                var test_valentines_price = Number($('input[name="Выберите Ваш район для доставки"]:checked').data('deliveryPrice')) + valentines_extra_charge;
+                console.log(test_valentines_price, 'цена на 14 февраля')
                 var delivery_price = Number($('input[name="Выберите Ваш район для доставки"]:checked').data('deliveryPrice'));
-                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'до 9:00 (стоимость доставки может измениться)') {
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'до 9:00 (стоимость доставки может измениться)' && !is_valentines_day) {
                     console.log('tcart.delivery.price',tcart.delivery.price);
                     tcart.delivery.price = delivery_price + until_hour;
                 }
-                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'После 19:00 (стоимость доставки может измениться)') {
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'После 19:00 (стоимость доставки может измениться)' && !is_valentines_day) {
                     console.log('tcart.delivery.price',tcart.delivery.price);
                     tcart.delivery.price = delivery_price + after_hour;
+                }
+                if(is_valentines_day) {
+                  tcart.delivery.price = delivery_price + valentines_extra_charge;
+                  console.log('tcart.delivery.price',tcart.delivery.price);
                 }
                 renewCart();
             },50)
@@ -272,14 +281,24 @@ $(function(){
         // добавляем надбавку к цене
         function addVal() {
             setTimeout(function(){
+                var choosed_day = $datepicker_block_init.datepicker('getDate').getDate();
+                var choosed_month = $datepicker_block_init.datepicker('getDate').getMonth();
+                var is_valentines_day = choosed_day == 14 && choosed_month == 1;
+                var test_valentines_price = Number($('input[name="Выберите Ваш район для доставки"]:checked').data('deliveryPrice')) + valentines_extra_charge;
+                console.log(test_valentines_price, 'цена на 14 февраля')
+
                 var delivery_price = Number($('input[name="Izvēlieties Jūsu dzīvojamo rajonu"]:checked').data('deliveryPrice'));
-                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'Pirms 9:00 (piegādes izmaksas var mainīties)') {
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'Pirms 9:00 (piegādes izmaksas var mainīties)' && !is_valentines_day) {
                     console.log('tcart.delivery.price',tcart.delivery.price);
                     tcart.delivery.price = delivery_price + until_hour;
                 }
-                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'Pēc 19:00 (piegādes izmaksas var mainīties)') {
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'Pēc 19:00 (piegādes izmaksas var mainīties)' && !is_valentines_day) {
                     console.log('tcart.delivery.price',tcart.delivery.price);
                     tcart.delivery.price = delivery_price + after_hour;
+                }
+                if(is_valentines_day) {
+                  tcart.delivery.price = delivery_price + valentines_extra_charge;
+                  console.log('tcart.delivery.price',tcart.delivery.price);
                 }
                 renewCart();
             },50)
@@ -357,12 +376,22 @@ $(function(){
         // добавляем надбавку к цене
         function addVal() {
             setTimeout(function(){
+                var choosed_day = $datepicker_block_init.datepicker('getDate').getDate();
+                var choosed_month = $datepicker_block_init.datepicker('getDate').getMonth();
+                var is_valentines_day = choosed_day == 14 && choosed_month == 1;
+                var test_valentines_price = Number($('input[name="Выберите Ваш район для доставки"]:checked').data('deliveryPrice')) + valentines_extra_charge;
+                console.log(test_valentines_price, 'цена на 14 февраля')
+
                 var delivery_price = Number($('input[name="Choose your residential area"]:checked').data('deliveryPrice'));
-                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'Before 9:00 (delivery costs may vary)') {
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'Before 9:00 (delivery costs may vary)' && !is_valentines_day) {
                     tcart.delivery.price = delivery_price + until_hour;
                 }
-                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'After 19:00 (delivery costs may vary)') {
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'After 19:00 (delivery costs may vary)' && !is_valentines_day) {
                     tcart.delivery.price = delivery_price + after_hour;
+                }
+                if(is_valentines_day) {
+                  tcart.delivery.price = delivery_price + valentines_extra_charge;
+                  console.log('tcart.delivery.price',tcart.delivery.price);
                 }
                 renewCart();
             },50)
