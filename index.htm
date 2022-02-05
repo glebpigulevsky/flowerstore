@@ -183,12 +183,16 @@ $(function(){
         // выбор времени
         $('[name="sl"]').on('change',function(e){
             let t_val = e.target.value;
+            var choosed_day = $datepicker_block_init.datepicker('getDate').getDate();
+            var choosed_month = $datepicker_block_init.datepicker('getDate').getMonth();
+            var is_valentines_day = choosed_day == 14 && choosed_month == 1;
             if (
                 (t_val == 'до 9:00 (стоимость доставки может измениться)' && $('[name="Выберите Ваш район для доставки_2"]').val() != 'Забрать в магазине (Brīvības iela 147)') ||
-                (t_val == 'После 19:00 (стоимость доставки может измениться)' && $('[name="Выберите Ваш район для доставки_2"]').val() != 'Забрать в магазине (Brīvības iela 147)')
+                (t_val == 'После 19:00 (стоимость доставки может измениться)' && $('[name="Выберите Ваш район для доставки_2"]').val() != 'Забрать в магазине (Brīvības iela 147)') ||
+                (is_valentines_day && $('[name="Выберите Ваш район для доставки_2"]').val() != 'Забрать в магазине (Brīvības iela 147)')
             ) {
                 addVal();
-            } else {
+            } else if (!is_valentines_day) {
                 removeVal();
             }
         })
@@ -231,6 +235,9 @@ $(function(){
         // убираем надбавку от цены
         function removeVal() {
             var delivery_price = Number($('input[name="Выберите Ваш район для доставки"]:checked').data('deliveryPrice'));
+            var choosed_day = $datepicker_block_init.datepicker('getDate').getDate();
+            var choosed_month = $datepicker_block_init.datepicker('getDate').getMonth();
+            var is_valentines_day = choosed_day == 14 && choosed_month == 1;
             setTimeout(function(){
                 // до 9 часов:
                 if ($('[name="sl"]').val() == 'до 9:00 (стоимость доставки может измениться)') {
@@ -253,7 +260,9 @@ $(function(){
                 if($('[name="sl"]').val() != 'до 9:00 (стоимость доставки может измениться)' && $('[name="sl"]').val() != 'После 19:00 (стоимость доставки может измениться)') {
                     tcart.delivery.price = delivery_price;
                 }
-
+                if(is_valentines_day) {
+                  tcart.delivery.price = delivery_price - valentines_extra_charge;
+                }
                 renewCart();
             },50);
 
@@ -276,12 +285,16 @@ $(function(){
         // выбор времени
         $('[name="sl"]').on('change',function(e){
             let t_val = e.target.value;
+            var choosed_day = $datepicker_block_init.datepicker('getDate').getDate();
+            var choosed_month = $datepicker_block_init.datepicker('getDate').getMonth();
+            var is_valentines_day = choosed_day == 14 && choosed_month == 1;
             if (
                 (t_val == 'Pirms 9:00 (piegādes izmaksas var mainīties)' && $('[name="Выберите Ваш район для доставки"]').val() != 'Saņemt veikalā (Brīvības iela 147)') ||
-                (t_val == 'Pēc 19:00 (piegādes izmaksas var mainīties)' && $('[name="Выберите Ваш район для доставки"]').val() != 'Saņemt veikalā (Brīvības iela 147)')
+                (t_val == 'Pēc 19:00 (piegādes izmaksas var mainīties)' && $('[name="Выберите Ваш район для доставки"]').val() != 'Saņemt veikalā (Brīvības iela 147)') ||
+                (is_valentines_day && $('[name="Выберите Ваш район для доставки"]').val() != 'Saņemt veikalā (Brīvības iela 147)')
             ) {
                 addVal();
-            } else {
+            } else if (!is_valentines_day) {
                 removeVal();
             }
         })
@@ -326,6 +339,9 @@ $(function(){
         function removeVal() {
             setTimeout(function(){
                 var delivery_price = Number($('input[name="Izvēlieties Jūsu dzīvojamo rajonu"]:checked').data('deliveryPrice'));
+                var choosed_day = $datepicker_block_init.datepicker('getDate').getDate();
+                var choosed_month = $datepicker_block_init.datepicker('getDate').getMonth();
+                var is_valentines_day = choosed_day == 14 && choosed_month == 1;
                 // до 9 часов:
                 if ($('[name="sl"]').val() == 'Pirms 9:00 (piegādes izmaksas var mainīties)') {
                     if (tcart.delivery.price - until_hour <= 0) {
@@ -346,6 +362,11 @@ $(function(){
                 if($('[name="sl"]').val() != 'Pirms 9:00 (piegādes izmaksas var mainīties)' && $('[name="sl"]').val() != 'Pēc 19:00 (piegādes izmaksas var mainīties)') {
                     tcart.delivery.price = delivery_price;
                 }
+
+                if(is_valentines_day) {
+                  tcart.delivery.price = delivery_price - valentines_extra_charge;
+                }
+
                 renewCart();
             },50);
         }
@@ -370,12 +391,16 @@ $(function(){
         // выбор времени
         $('[name="sl"]').on('change',function(e){
             let t_val = e.target.value;
+            var choosed_day = $datepicker_block_init.datepicker('getDate').getDate();
+            var choosed_month = $datepicker_block_init.datepicker('getDate').getMonth();
+            var is_valentines_day = choosed_day == 14 && choosed_month == 1;
             if (
-                (t_val == 'Before 9:00 (delivery costs may vary)' && $('[name="Choose your residential area_2"]').val() != 'Receive in store (Brivibas street 147)') ||
-                (t_val == 'After 19:00 (delivery costs may vary)' && $('[name="Choose your residential area_2"]').val() != 'Receive in store (Brivibas street 147)')
+                (t_val == 'Before 9:00 (delivery costs may vary)' && $('[name="Выберите Ваш район для доставки"]').val() != 'Receive in store (Brivibas street 147)') ||
+                (t_val == 'After 19:00 (delivery costs may vary)' && $('[name="Выберите Ваш район для доставки"]').val() != 'Receive in store (Brivibas street 147)') ||
+                (is_valentines_day && $('[name="Выберите Ваш район для доставки"]').val() != 'Receive in store (Brivibas street 147)')
             ) {
                 addVal();
-            } else {
+            } else if (!is_valentines_day) {
                 removeVal();
             }
         })
@@ -419,6 +444,9 @@ $(function(){
         function removeVal() {
             setTimeout(function(){
                 var delivery_price = Number($('input[name="Choose your residential area"]:checked').data('deliveryPrice'));
+                var choosed_day = $datepicker_block_init.datepicker('getDate').getDate();
+                var choosed_month = $datepicker_block_init.datepicker('getDate').getMonth();
+                var is_valentines_day = choosed_day == 14 && choosed_month == 1;
                 // до 9 часов:
                 if ($('[name="sl"]').val() == 'Before 9:00 (delivery costs may vary)') {
                     if (tcart.delivery.price - until_hour <= 0) {
@@ -438,6 +466,9 @@ $(function(){
                 // если выбрано не до 9:00 и не после 19:00
                 if($('[name="sl"]').val() != 'Before 9:00 (delivery costs may vary)' && $('[name="sl"]').val() != 'After 19:00 (delivery costs may vary)') {
                     tcart.delivery.price = delivery_price;
+                }
+                if(is_valentines_day) {
+                  tcart.delivery.price = delivery_price - valentines_extra_charge;
                 }
                 renewCart();
             },50);
