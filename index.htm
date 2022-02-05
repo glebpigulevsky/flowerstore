@@ -29,6 +29,7 @@ $(function(){
     var current_month = new Date().getMonth();
     var current_year = new Date().getFullYear();
     var current_hour = new Date().getHours();
+    var current_date = new Date().getDate();
     var current_day_name = '';
     /* Локализация datepicker */
     $.datepicker.regional['ru'] = {
@@ -61,6 +62,8 @@ $(function(){
         // console.log('d',d);
         if (d.getDay() == sun) {
             return [ false, "closed", "Closed on Monday" ]
+        } else if (d.getDate() - 1 == 13 && d.getMonth() == 1 && current_month == 1 && current_date == 13) {
+            return [ false, "closed", "Closed on Valentine's day" ]
         } else {
             return [true,'','']
         }
@@ -106,6 +109,9 @@ $(function(){
         var date = $(this).datepicker('getDate');
         var today = new Date();
         var dayDiff = Math.ceil((date - current_full_date) / (1000 * 60 * 60 * 24)); // разница в днях между выбранной датой в календаре и текущем днём.
+        var choosed_day = $datepicker_block_init.datepicker('getDate').getDate();
+        var choosed_month = $datepicker_block_init.datepicker('getDate').getMonth();
+        var is_valentines_day = choosed_day == 14 && choosed_month == 1;
         console.log('разница в днях между текущей датой и выбранной ',dayDiff);
         console.log('выбранный день недели ',current_datepicker_name);
 
@@ -138,12 +144,12 @@ $(function(){
         }
 
         // Если выбрана дата на несколько дней вперёд то заказать можно на любую дату.
-        if (dayDiff > 1) {
+        if (dayDiff > 1 && !is_valentines_day) {
             $('select[name="sl"] option').show();
         }
 
         // если сегодня суббота и выбран в календаре понедельник
-        if (current_datepicker_name == 'понедельник') {
+        if (current_datepicker_name == 'понедельник' && !is_valentines_day) {
             console.log('current_day_name =', current_day_name)
             if (current_hour >= 15 && current_day_name == 'суббота') {
                 resetDate();
@@ -152,9 +158,16 @@ $(function(){
             }
         }
 
-        if (current_datepicker_name == 'суббота') {
+        if (current_datepicker_name == 'суббота' && !is_valentines_day) {
              resetDate();
             $('select[name="sl"] option').slice(8,14).hide();
+        }
+
+        if(is_valentines_day) {
+          if($('select[name="sl"] option').length == 20) {
+            console.log('обрезка массива для дня святого валентина')
+              $('select[name="sl"] option').slice(13,19).hide();
+          }
         }
 
     }
