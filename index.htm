@@ -1,0 +1,408 @@
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <style>
+    td.ui-datepicker-week-end.ui-datepicker-days-cell-over a {
+    background-color: orange;
+}
+[name="datepicker"]{
+    width: 60% !important;
+    background: url("data:image/svg+xml,%3Csvg class='t-datepicker__icon ' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 69.5 76.2' style='width:25px;'%3E%3Cpath d='M9.6 42.9H21V31.6H9.6v11.3zm3-8.3H18v5.3h-5.3v-5.3zm16.5 8.3h11.3V31.6H29.1v11.3zm3-8.3h5.3v5.3h-5.3v-5.3zM48 42.9h11.3V31.6H48v11.3zm3-8.3h5.3v5.3H51v-5.3zM9.6 62H21V50.6H9.6V62zm3-8.4H18V59h-5.3v-5.4zM29.1 62h11.3V50.6H29.1V62zm3-8.4h5.3V59h-5.3v-5.4zM48 62h11.3V50.6H48V62zm3-8.4h5.3V59H51v-5.4z'%3E%3C/path%3E%3Cpath d='M59.7 6.8V5.3c0-2.9-2.4-5.3-5.3-5.3s-5.3 2.4-5.3 5.3v1.5H40V5.3C40 2.4 37.6 0 34.7 0s-5.3 2.4-5.3 5.3v1.5h-9.1V5.3C20.3 2.4 18 0 15 0c-2.9 0-5.3 2.4-5.3 5.3v1.5H0v69.5h69.5V6.8h-9.8zm-7.6-1.5c0-1.3 1-2.3 2.3-2.3s2.3 1 2.3 2.3v7.1c0 1.3-1 2.3-2.3 2.3s-2.3-1-2.3-2.3V5.3zm-19.7 0c0-1.3 1-2.3 2.3-2.3S37 4 37 5.3v7.1c0 1.3-1 2.3-2.3 2.3s-2.3-1-2.3-2.3V5.3zm-19.6 0C12.8 4 13.8 3 15 3c1.3 0 2.3 1 2.3 2.3v7.1c0 1.3-1 2.3-2.3 2.3-1.3 0-2.3-1-2.3-2.3V5.3zm53.7 67.9H3V9.8h6.8v2.6c0 2.9 2.4 5.3 5.3 5.3s5.3-2.4 5.3-5.3V9.8h9.1v2.6c0 2.9 2.4 5.3 5.3 5.3s5.3-2.4 5.3-5.3V9.8h9.1v2.6c0 2.9 2.4 5.3 5.3 5.3s5.3-2.4 5.3-5.3V9.8h6.8l-.1 63.4z'%3E%3C/path%3E%3C/svg%3E") no-repeat 95% 5px;
+    background-size: auto 70%;
+}
+[data-input-lid="1625323464394"] {
+    display: none;
+}
+</style>
+
+<script>
+$(function(){
+    var from_time = 12; // от какого времени доставка на след.день по всему графику
+    var after_time = 19; // после какого времени доставка с 12 часов. на след день только возможна.
+    var $time_block = $('[name="sl"]').parents('.t-input-group'); // time block
+    var $datepicker_block_init = $('[name="datepicker"]'); // datepicker selector
+    var until_hour = 3 ; // наценка до 9 часов
+    var after_hour = 3 ; // наценка после 19:00 ;
+
+    var current_full_date = new Date();
+    var current_day = new Date().getDay();
+    var current_month = new Date().getMonth();
+    var current_year = new Date().getFullYear();
+    var current_hour = new Date().getHours();
+    var current_day_name = '';
+    /* Локализация datepicker */
+    $.datepicker.regional['ru'] = {
+        closeText: 'Закрыть',
+        prevText: 'Предыдущий',
+        nextText: 'Следующий',
+        currentText: 'Сегодня',
+        monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+        monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'],
+        dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+        dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
+        dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+        weekHeader: 'Не',
+        dateFormat: 'dd.mm.yy',
+        firstDay: 1,
+        isRTL: false,
+        showMonthAfterYear: false,
+        yearSuffix: '',
+        onSelect: onSelection,
+        beforeShowDay: disableDays
+    };
+    $.datepicker.setDefaults($.datepicker.regional['ru']);
+    $datepicker_block_init.datepicker(); // init datepicker;
+    thisDay();
+
+
+    function disableDays(d) {
+        var sun = 0;
+        // console.log('d.getDay()',d.getDay());
+        // console.log('d',d);
+        if (d.getDay() == sun) {
+            return [ false, "closed", "Closed on Monday" ]
+        } else {
+            return [true,'','']
+        }
+    }
+
+    // Для текущего дня проверка
+    function thisDay(){
+        current_day_name = $.datepicker.regional['ru'].dayNames[new Date().getDay()];
+        console.log('текущий день: ',current_day_name);
+        if (current_hour >= from_time && current_hour < after_time) {
+            $datepicker_block_init.datepicker('option', 'minDate', '+1d');
+            console.log('отработало данное значение 1');
+        }
+        if (current_hour >= after_time) {
+            $datepicker_block_init.datepicker('option', 'minDate', '+1d');
+            console.log('отработало данное значение 2');
+        }
+        if (current_hour < from_time) {
+            $datepicker_block_init.datepicker('option', 'minDate', '+0d');
+            console.log('отработало данное значение 3');
+        }
+    }
+
+    function resetDate() {
+        $('select[name="sl"] option').show();
+    }
+
+    // Обновление корзины
+    function renewCart() {
+        tcart__updateTotalProductsinCartObj()
+        tcart__updateProductsPrice();
+        tcart__reDrawTotal()
+    }
+
+    function onSelection(i,d){
+        console.log(i,d);
+        current_datepicker_name = $.datepicker.regional['ru'].dayNames[$datepicker_block_init.datepicker('getDate').getDay()];
+        current_day = new Date().getDate();
+        current_month = new Date().getMonth();
+        current_year = new Date().getFullYear();
+        current_hour = new Date().getHours();
+        current_full_date = new Date(current_year,current_month,current_day); // полное число выбранное.
+        var date = $(this).datepicker('getDate');
+        var today = new Date();
+        var dayDiff = Math.ceil((date - current_full_date) / (1000 * 60 * 60 * 24)); // разница в днях между выбранной датой в календаре и текущем днём.
+        console.log('разница в днях между текущей датой и выбранной ',dayDiff);
+        console.log('выбранный день недели ',current_datepicker_name);
+
+        $('[name="sl"] option').eq(0).prop('selected',true); // сбрасываем поле выбора времени доставки после выбора числа.
+        $time_block.show();
+
+        // Если день выбран сегодняшний
+        if (dayDiff == 0) {
+            // если время больше 12 и меньше 19:00
+            if (current_hour >= from_time && current_hour < after_time) {
+                $('select[name="sl"] option').show();
+            }
+            // если время больше after_time то прячем выбор времени до 12:00 часов .
+            if (current_hour >= after_time) {
+                $('select[name="sl"] option').slice(1,5).hide();
+            }
+        }
+
+        // Если выбран завтрашний день
+        if (dayDiff == 1) {
+            // если сейчас время больше 19:00
+            if (current_hour >= after_time) {
+                console.log($('select[name="sl"] option'));
+                setTimeout(function () {
+                    $('select[name="sl"] option').slice(1,5).hide();
+                },500)
+            } else {
+                $('select[name="sl"] option').show();
+            }
+        }
+
+        // Если выбрана дата на несколько дней вперёд то заказать можно на любую дату.
+        if (dayDiff > 1) {
+            $('select[name="sl"] option').show();
+        }
+
+        // если сегодня суббота и выбран в календаре понедельник
+        if (current_datepicker_name == 'понедельник') {
+            console.log('current_day_name =', current_day_name)
+            if (current_hour >= 15 && current_day_name == 'суббота') {
+                resetDate();
+                $('select[name="sl"] option').slice(1,5).hide();
+                console.log('отработало данное значение 4');
+            }
+        }
+
+        if (current_datepicker_name == 'суббота') {
+             resetDate();
+            $('select[name="sl"] option').slice(8,14).hide();
+        }
+
+    }
+
+
+    /* Языковая версия русская */
+    if ($('a.tn-atom:contains("КОНСТРУКТОР")').is('a.tn-atom')) {
+
+        // выбор времени
+        $('[name="sl"]').on('change',function(e){
+            let t_val = e.target.value;
+            if (
+                (t_val == 'до 9:00 (стоимость доставки может измениться)' && $('[name="Выберите Ваш район для доставки_2"]').val() != 'Забрать в магазине (Brīvības iela 147)') ||
+                (t_val == 'После 19:00 (стоимость доставки может измениться)' && $('[name="Выберите Ваш район для доставки_2"]').val() != 'Забрать в магазине (Brīvības iela 147)')
+            ) {
+                addVal();
+            } else {
+                removeVal();
+            }
+        })
+
+        // выбор адреса доставки
+        $('[name="Выберите Ваш район для доставки_2"]').on('change',function(e){
+            let d_val = e.target.value; // куда доставлять
+            if (d_val != 'Забрать в магазине (Brīvības iela 147)') { // если не бесплатная доставка из магазина
+                addVal();
+            } else {
+                removeVal();
+            }
+        })
+
+        // добавляем надбавку к цене
+        function addVal() {
+            setTimeout(function(){
+                var delivery_price = Number($('input[name="Выберите Ваш район для доставки"]:checked').data('deliveryPrice'));
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'до 9:00 (стоимость доставки может измениться)') {
+                    console.log('tcart.delivery.price',tcart.delivery.price);
+                    tcart.delivery.price = delivery_price + until_hour;
+                }
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'После 19:00 (стоимость доставки может измениться)') {
+                    console.log('tcart.delivery.price',tcart.delivery.price);
+                    tcart.delivery.price = delivery_price + after_hour;
+                }
+                renewCart();
+            },50)
+        }
+
+        // убираем надбавку от цены
+        function removeVal() {
+            var delivery_price = Number($('input[name="Выберите Ваш район для доставки"]:checked').data('deliveryPrice'));
+            setTimeout(function(){
+                // до 9 часов:
+                if ($('[name="sl"]').val() == 'до 9:00 (стоимость доставки может измениться)') {
+                    if (tcart.delivery.price - until_hour <= 0) {
+                        tcart.delivery.price = 0;
+                    } else {
+                        tcart.delivery.price = tcart.delivery.price - until_hour;
+                    }
+                }
+                // после 19:00
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'После 19:00 (стоимость доставки может измениться)') {
+                    if (tcart.delivery.price - after_hour <= 0) {
+                        tcart.delivery.price = 0;
+                    } else {
+                        tcart.delivery.price = tcart.delivery.price - after_hour;
+                    }
+                }
+
+                // если выбрано не до 9:00 и не после 19:00
+                if($('[name="sl"]').val() != 'до 9:00 (стоимость доставки может измениться)' && $('[name="sl"]').val() != 'После 19:00 (стоимость доставки может измениться)') {
+                    tcart.delivery.price = delivery_price;
+                }
+
+                renewCart();
+            },50);
+
+
+
+        }
+
+        // убираем список и делаем выпадашку из него
+        $('[name="Выберите Ваш район для доставки"]').parent('.t-radio__control').hide()
+        $('input[name="Выберите Ваш район для доставки"]').eq(0).trigger('click');
+        $('select[name="Выберите Ваш район для доставки_2"]').change(function(){
+            var anitype = $(this).prop('selectedIndex')
+            $('input[name="Выберите Ваш район для доставки"]').eq(anitype).trigger('click');
+        });
+    }
+
+    /* Языковая версия LV */
+    if ($('a.tn-atom:contains("KONSTRUKTORS")').is('a.tn-atom')) {
+
+        // выбор времени
+        $('[name="sl"]').on('change',function(e){
+            let t_val = e.target.value;
+            if (
+                (t_val == 'Pirms 9:00 (piegādes izmaksas var mainīties)' && $('[name="Выберите Ваш район для доставки"]').val() != 'Saņemt veikalā (Brīvības iela 147)') ||
+                (t_val == 'Pēc 19:00 (piegādes izmaksas var mainīties)' && $('[name="Выберите Ваш район для доставки"]').val() != 'Saņemt veikalā (Brīvības iela 147)')
+            ) {
+                addVal();
+            } else {
+                removeVal();
+            }
+        })
+
+        // выбор адреса доставки
+        $('[name="Выберите Ваш район для доставки"]').on('change',function(e){
+            let d_val = e.target.value; // куда доставлять
+            if (d_val != 'Saņemt veikalā (Brīvības iela 147)') { // если не бесплатная доставка из магазина
+                addVal();
+            } else {
+                removeVal();
+            }
+        })
+
+        // добавляем надбавку к цене
+        function addVal() {
+            setTimeout(function(){
+                var delivery_price = Number($('input[name="Izvēlieties Jūsu dzīvojamo rajonu"]:checked').data('deliveryPrice'));
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'Pirms 9:00 (piegādes izmaksas var mainīties)') {
+                    console.log('tcart.delivery.price',tcart.delivery.price);
+                    tcart.delivery.price = delivery_price + until_hour;
+                }
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'Pēc 19:00 (piegādes izmaksas var mainīties)') {
+                    console.log('tcart.delivery.price',tcart.delivery.price);
+                    tcart.delivery.price = delivery_price + after_hour;
+                }
+                renewCart();
+            },50)
+        }
+
+        // убираем надбавку от цены
+        function removeVal() {
+            setTimeout(function(){
+                var delivery_price = Number($('input[name="Izvēlieties Jūsu dzīvojamo rajonu"]:checked').data('deliveryPrice'));
+                // до 9 часов:
+                if ($('[name="sl"]').val() == 'Pirms 9:00 (piegādes izmaksas var mainīties)') {
+                    if (tcart.delivery.price - until_hour <= 0) {
+                        tcart.delivery.price = 0;
+                    } else {
+                        tcart.delivery.price = tcart.delivery.price - until_hour;
+                    }
+                }
+                // после 19:00
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'Pēc 19:00 (piegādes izmaksas var mainīties)') {
+                    if (tcart.delivery.price - after_hour <= 0) {
+                        tcart.delivery.price = 0;
+                    } else {
+                        tcart.delivery.price = tcart.delivery.price - after_hour;
+                    }
+                }
+                // если выбрано не до 9:00 и не после 19:00
+                if($('[name="sl"]').val() != 'Pirms 9:00 (piegādes izmaksas var mainīties)' && $('[name="sl"]').val() != 'Pēc 19:00 (piegādes izmaksas var mainīties)') {
+                    tcart.delivery.price = delivery_price;
+                }
+                renewCart();
+            },50);
+        }
+
+        // скрытие радиокнопок и.т.п
+        $('[name="Выберите Ваш район для доставки"]').parents('.t-input-group').parent().find('.t-radio__control').hide(); // ГОТОВО
+        $('input[name="Izvēlieties Jūsu dzīvojamo rajonu"]').eq(0).trigger('click'); // выбор скрытого района доставки ГОТОВО
+        $('select[name="Выберите Ваш район для доставки"]').change(function(){
+            var anitype = $(this).prop('selectedIndex');
+            $('input[name="Izvēlieties Jūsu dzīvojamo rajonu"]').eq(anitype).trigger('click');
+        });
+    }
+
+    /* Языковая версия EN */
+    if ($('a.tn-atom:contains("CONSTRUCTOR")').is('a.tn-atom')) {
+        // выбор времени
+        $('[name="sl"]').on('change',function(e){
+            let t_val = e.target.value;
+            t_val == 'Before 9:00 (delivery costs may vary)' && $('[name="Choose your residential area_2"]').val() != 'Receive in store (Brivibas street 147)' ? addVal() :  removeVal();
+        })
+
+        // выбор времени
+        $('[name="sl"]').on('change',function(e){
+            let t_val = e.target.value;
+            if (
+                (t_val == 'Before 9:00 (delivery costs may vary)' && $('[name="Choose your residential area_2"]').val() != 'Receive in store (Brivibas street 147)') ||
+                (t_val == 'After 19:00 (delivery costs may vary)' && $('[name="Choose your residential area_2"]').val() != 'Receive in store (Brivibas street 147)')
+            ) {
+                addVal();
+            } else {
+                removeVal();
+            }
+        })
+
+
+        // выбор адреса доставки
+        $('[name="Выберите Ваш район для доставки"]').on('change',function(e){
+            let d_val = e.target.value; // куда доставлять
+            if (d_val != 'Receive in store (Brivibas street 147)') { // если не бесплатная доставка из магазина
+                addVal();
+            } else {
+                removeVal();
+            }
+        })
+
+        // добавляем надбавку к цене
+        function addVal() {
+            setTimeout(function(){
+                var delivery_price = Number($('input[name="Choose your residential area"]:checked').data('deliveryPrice'));
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'Before 9:00 (delivery costs may vary)') {
+                    tcart.delivery.price = delivery_price + until_hour;
+                }
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'After 19:00 (delivery costs may vary)') {
+                    tcart.delivery.price = delivery_price + after_hour;
+                }
+                renewCart();
+            },50)
+        }
+
+        // убираем надбавку от цены
+        function removeVal() {
+            setTimeout(function(){
+                var delivery_price = Number($('input[name="Choose your residential area"]:checked').data('deliveryPrice'));
+                // до 9 часов:
+                if ($('[name="sl"]').val() == 'Before 9:00 (delivery costs may vary)') {
+                    if (tcart.delivery.price - until_hour <= 0) {
+                        tcart.delivery.price = 0;
+                    } else {
+                        tcart.delivery.price = tcart.delivery.price - until_hour;
+                    }
+                }
+                // после 19:00
+                if (tcart.delivery != 0 &&  $('[name="sl"]').val() == 'After 19:00 (delivery costs may vary)') {
+                    if (tcart.delivery.price - after_hour <= 0) {
+                        tcart.delivery.price = 0;
+                    } else {
+                        tcart.delivery.price = tcart.delivery.price - after_hour;
+                    }
+                }
+                // если выбрано не до 9:00 и не после 19:00
+                if($('[name="sl"]').val() != 'Before 9:00 (delivery costs may vary)' && $('[name="sl"]').val() != 'After 19:00 (delivery costs may vary)') {
+                    tcart.delivery.price = delivery_price;
+                }
+                renewCart();
+            },50);
+        }
+
+        $('[name="Выберите Ваш район для доставки"]').parents('.t-input-group').parent().find('.t-radio__control').hide();
+        $('input[name="Choose your residential area"]').eq(0).trigger('click'); // выбор скрытого района доставки ГОТОВО
+        $('select[name="Выберите Ваш район для доставки"]').change(function(){
+            var anitype = $(this).prop('selectedIndex');
+            $('input[name="Choose your residential area"]').eq(anitype).trigger('click');
+        });
+    }
+
+})
+</script>
