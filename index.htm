@@ -145,7 +145,9 @@ $(function(){
 
         // Если выбрана дата на несколько дней вперёд то заказать можно на любую дату.
         if (dayDiff > 1 && !is_valentines_day) {
-            $('select[name="sl"] option').show();
+            resetDate();
+            $('select[name="sl"] option').slice(-7).hide();
+            // $('select[name="sl"] option').show();
         }
 
         // если сегодня суббота и выбран в календаре понедельник
@@ -154,19 +156,21 @@ $(function(){
             if (current_hour >= 15 && current_day_name == 'суббота') {
                 resetDate();
                 $('select[name="sl"] option').slice(1,5).hide();
+                $('select[name="sl"] option').slice(-7).hide();
                 console.log('отработало данное значение 4');
             }
         }
 
         if (current_datepicker_name == 'суббота' && !is_valentines_day) {
              resetDate();
-            $('select[name="sl"] option').slice(8,14).hide();
+            $('select[name="sl"] option').slice(8,20).hide();
         }
 
         if(is_valentines_day) {
           if($('select[name="sl"] option').length == 20) {
+            resetDate();
             console.log('обрезка массива для дня святого валентина')
-              $('select[name="sl"] option').slice(13,19).hide();
+              $('select[name="sl"] option').slice(1, 13).hide();
           }
         }
 
