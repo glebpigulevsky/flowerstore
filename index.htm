@@ -49,10 +49,13 @@ $(function(){
         showMonthAfterYear: false,
         yearSuffix: '',
         onSelect: onSelection,
-        beforeShowDay: disableDays
+        beforeShowDay: disableDays,
+        allowInputToggle: true
     };
     $.datepicker.setDefaults($.datepicker.regional['ru']);
     $datepicker_block_init.datepicker(); // init datepicker;
+    $datepicker_block_init.attr('onkeydown', 'return false');
+    $datepicker_block_init.attr('readonly','readonly')
     thisDay();
 
 
@@ -133,13 +136,14 @@ $(function(){
         // Если выбран завтрашний день
         if (dayDiff == 1) {
             // если сейчас время больше 19:00
-            if (current_hour >= after_time) {
+            if (current_hour >= after_time  && !is_valentines_day) {
                 console.log($('select[name="sl"] option'));
                 setTimeout(function () {
                     $('select[name="sl"] option').slice(1,5).hide();
+                    $('select[name="sl"] option').slice(-7).hide();
                 },500)
             } else {
-                $('select[name="sl"] option').show();
+                $('select[name="sl"] option').slice(-7).hide();
             }
         }
 
@@ -167,8 +171,8 @@ $(function(){
         }
 
         if(is_valentines_day) {
+          resetDate();
           if($('select[name="sl"] option').length == 20) {
-            resetDate();
             console.log('обрезка массива для дня святого валентина')
               $('select[name="sl"] option').slice(1, 13).hide();
           }
