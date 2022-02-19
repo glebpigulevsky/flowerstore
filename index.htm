@@ -58,6 +58,47 @@ $(function(){
     $datepicker_block_init.attr('readonly','readonly')
     thisDay();
 
+    function fadeOut(element) {
+      $(`input[name="${element}"]`).parent().parent().fadeOut();
+      $(`input[name="${element}"]`).removeAttr('data-tilda-req');
+    }
+
+    function fadeIn(element) {
+      $(`input[name="${element}"]`).parent().parent().fadeIn();
+      $(`input[name="${element}"]`).attr('data-tilda-req', "1");
+    }
+
+    if($('[name="Выберите Ваш район для доставки"]').val() == 'Saņemt veikalā (Brīvības iela 147)' || $('[name="Выберите Ваш район для доставки"]').val() == 'Receive in store (Brivibas street 147)' || $('[name="Выберите Ваш район для доставки_2"]').val() == 'Забрать в магазине (Brīvības iela 147)') {
+      fadeOut("Piegādes adrese");
+      fadeOut("Delivery full address");
+      fadeOut("delivery_address_input");
+    } else {
+      fadeIn("Piegādes adrese");
+      fadeIn("Delivery full address");
+      fadeIn("delivery_address_input")
+    }
+
+    $('[name="Выберите Ваш район для доставки_2"]').on('change', function(event){
+      const shopAddressValues = ['Забрать в магазине (Brīvības iela 147)', 'Saņemt veikalā (Brīvības iela 147)', 'Receive in store (Brivibas street 147)'];
+
+      if(shopAddressValues.includes(event.target.value)) {
+          fadeOut("delivery_address_input")
+        } else {
+          fadeIn("delivery_address_input")
+        }
+    });
+
+    $('[name="Выберите Ваш район для доставки"]').on('change', function(event){
+      const shopAddressValues = ['Забрать в магазине (Brīvības iela 147)', 'Saņemt veikalā (Brīvības iela 147)', 'Receive in store (Brivibas street 147)'];
+
+      if(shopAddressValues.includes(event.target.value)) {
+          fadeOut("Piegādes adrese");
+          fadeOut("Delivery full address");
+        } else {
+          fadeIn("Piegādes adrese");
+          fadeIn("Delivery full address");
+        }
+    });
 
     function disableDays(d) {
         var sun = 0;
@@ -177,7 +218,6 @@ $(function(){
               $('select[name="sl"] option').slice(1, 13).hide();
           }
         }
-
     }
 
 
